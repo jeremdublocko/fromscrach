@@ -1,0 +1,25 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/home.html"
+      }
+    ]
+  },
+  "database": {
+    "rules": {
+      ".read": true,
+      ".write": true
+    }
+  },
+  "projects": {
+    "default": "from-scrach-83db5"
+  }
+}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votez pour l'instrument</title>
+    <link rel="stylesheet" href="home.css">
+    <style>
+        .thumbnail {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            object-fit: cover;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .large-image {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            object-fit: contain;
+            z-index: 1000;
+        }
+        .image-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+        .votes-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1002;
+        }
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    <script>
+        // Configuration Firebase
+        var firebaseConfig = {
+            apiKey: "AIzaSyBi6wvQ0NLeE9x5LE-qOdcNCpBICYcFvNE",
+            authDomain: "from-scrach-83db5.firebaseapp.com",
+            databaseURL: "https://from-scrach-83db5-default-rtdb.firebaseio.com",
+            projectId: "from-scrach-83db5",
+            storageBucket: "from-scrach-83db5.appspot.com",
+            messagingSenderId: "343763059086",
+            appId: "1:343763059086:web:b38bda342abe0e24cf24df"
+        };
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Votez pour votre instrument</h1>
+    </header>
+    <main>
+        <div class="image-container">
+            <img src="assets/basse.jpg" alt="Basse" class="thumbnail" onclick="agrandirImage(this); vote('basse')">
+            <img src="assets/clavier.jpg" alt="Clavier" class="thumbnail" onclick="agrandirImage(this); vote('clavier')">
+            <img src="assets/guitare.jpg" alt="Guitare" class="thumbnail" onclick="agrandirImage(this); vote('guitare')">
+            <img src="assets/batterie.jpg" alt="Batterie" class="thumbnail" onclick="agrandirImage(this); vote('batterie')">
+        </div>
+        <div id="votes-container" class="votes-container">
+            <h2>Votes en temps réel</h2>
+            <p>Basse: <span id="votes-basse">0</span></p>
+            <p>Clavier: <span id="votes-clavier">0</span></p>
+            <p>Guitare: <span id="votes-guitare">0</span></p>
+            <p>Batterie: <span id="votes-batterie">0</span></p>
+        </div>
+    </main>
+    <div id="imageOverlay" class="image-overlay" onclick="fermerImage()"></div>
+    <img id="largeImage" class="large-image" onclick="fermerImage()">
+    <script>
+        const db = firebase.database();
+        let aVote = false;
+
+        function vote(instrument) {
+            if (!aVote) {
+                const voteRef = db.ref('votes/' + instrument);
+                voteRef.transaction(function(currentVotes) {
+                    return (currentVotes || 0) + 1;
+                });
+                alert(`Vous avez voté pour ${instrument}`);
+                aVote = true;
+            } else {
+                alert('Vous avez déjà voté');
+            }
+        }
+
+        function updateVotes() {
+            db.ref('votes').on('value', (snapshot) => {
+                const votes = snapshot.val();
+                document.getElementById('votes-basse').innerText = votes.basse || 0;
+                document.getElementById('votes-clavier').innerText = votes.clavier || 0;
+                document.getElementById('votes-guitare').innerText = votes.guitare || 0;
+                document.getElementById('votes-batterie').innerText = votes.batterie || 0;
+            });
+        }
+
+        function agrandirImage(img) {
+            const largeImage = document.getElementById('largeImage');
+            const imageOverlay = document.getElementById('imageOverlay');
+            largeImage.src = img.src;
+            largeImage.style.display = 'block';
+            imageOverlay.style.display = 'block';
+            document.getElementById('votes-container').style.display = 'block';
+        }
+
+        function fermerImage() {
+            document.getElementById('largeImage').style.display = 'none';
+            document.getElementById('imageOverlay').style.display = 'none';
+            document.getElementById('votes-container').style.display = 'none';
+        }
+
+        updateVotes(); // Initialiser les votes
+    </script>
+</body>
+</html>
